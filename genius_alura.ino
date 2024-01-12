@@ -13,7 +13,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   
-  // piscaLed(LED_VERMELHO);
+  piscaLed(LED_VERMELHO);
   
 }
 
