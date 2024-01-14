@@ -12,7 +12,7 @@ int sequenciaLuzes[TAMANHO_SEQUENCIA];
 
 void setup() {
   
-  Serial.begin(9600);
+  // Serial.begin(9600);
   // iniciaPortas();
   // iniciaJogo();
 }
