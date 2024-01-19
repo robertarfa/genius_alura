@@ -24,11 +24,15 @@ enum Estados{
   JOGO_FINALIZADO_FALHA
 };
 
+int rodada = 0;
+
+int ledsRespondidos = 0;
+
 void setup() {
   
-  Serial.begin(9600);
-  iniciaPortas();
-  iniciaJogo();
+  // Serial.begin(9600);
+  // iniciaPortas();
+  // iniciaJogo();
 }
 
 
@@ -37,14 +41,20 @@ void loop() {
   switch( estadoAtual()){
     case PRONTO_PARA_PROXIMA_RODADA:
          Serial.println("PRONTO_PARA_PROXIMA_RODADA");
+
+         preparaNovaRodada();
+       
          break;
     case USUARIO_RESPONDENDO:
+        processaRespostaUsuario();
         Serial.println("USUARIO_RESPONDENDO");
         break;
     case JOGO_FINALIZADO_SUCESSO:
+        jogoFinalizadoSucesso();
         Serial.println("JOGO_FINALIZADO_SUCESSO");
         break;
     case JOGO_FINALIZADO_FALHA:
+        jogoFinalizadoFalha();
         Serial.println("JOGO_FINALIZADO_FALHA");
         break;
   };
@@ -63,12 +73,52 @@ void iniciaJogo(){
 }
 
 int estadoAtual(){
-  //Computar Estado Atual
-  return PRONTO_PARA_PROXIMA_RODADA;
+  if(rodada <= TAMANHO_SEQUENCIA){
+    if(ledsRespondidos == rodada){
+       return PRONTO_PARA_PROXIMA_RODADA;
+    }else{
+      return USUARIO_RESPONDENDO;
+    }
+    
+  }else if(rodada == TAMANHO_SEQUENCIA + 1){
+      return JOGO_FINALIZADO_SUCESSO;
+  }else{
+    return JOGO_FINALIZADO_FALHA;
+  }
+}
+
+void preparaNovaRodada(){
+    rodada++;
+    ledsRespondidos = 0;
+
+    if(rodada <= TAMANHO_SEQUENCIA){
+      tocaLedsRodada();
+    }
+    
+}
+
+void processaRespostaUsuario(){
+
+  int resposta = checaRespostaJogador();
+
+  Serial.println(resposta);
+
+  if(resposta == INDEFINIDO){
+    return;
+  }
+
+  if(resposta == sequenciaLuzes[ledsRespondidos]){
+    ledsRespondidos++;
+  }else{
+    Serial.println("Resposta errada");
+    rodada = TAMANHO_SEQUENCIA + 2;
+  }
+
+  
 }
 
 void tocaLedsRodada(){
-    for(int i = 0; i <= TAMANHO_SEQUENCIA; i++){
+    for(int i = 0; i < rodada; i++){
     piscaLed(sequenciaLuzes[i]);
   }
 }
@@ -116,7 +166,8 @@ int checaRespostaJogador(){
 }
 
 
-void piscaSequencia1(){
+
+void jogoFinalizadoSucesso(){
     piscaLed(LED_VERDE);
     piscaLed(LED_AMARELO);
     piscaLed(LED_VERMELHO);
@@ -124,7 +175,7 @@ void piscaSequencia1(){
     delay(MEIO_SEGUNDO);
 }
 
-void piscaSequencia2(){
+void jogoFinalizadoFalha(){
   digitalWrite(LED_VERDE,HIGH);
   digitalWrite(LED_AMARELO,HIGH);
   digitalWrite(LED_VERMELHO,HIGH);
