@@ -17,6 +17,13 @@
 
 int sequenciaLuzes[TAMANHO_SEQUENCIA];
 
+enum Estados{
+  PRONTO_PARA_PROXIMA_RODADA,
+  USUARIO_RESPONDENDO,
+  JOGO_FINALIZADO_SUCESSO,
+  JOGO_FINALIZADO_FALHA
+};
+
 void setup() {
   
   Serial.begin(9600);
@@ -27,24 +34,47 @@ void setup() {
 
 void loop() {
   
-  for(int i = 0; i <= TAMANHO_SEQUENCIA; i++){
-    piscaLed(sequenciaLuzes[i]);
-  }
-
-int botaoApertado = checaRespostaJogador();
-
- Serial.println(botaoApertado);
+  switch( estadoAtual()){
+    case PRONTO_PARA_PROXIMA_RODADA:
+         Serial.println("PRONTO_PARA_PROXIMA_RODADA");
+         break;
+    case USUARIO_RESPONDENDO:
+        Serial.println("USUARIO_RESPONDENDO");
+        break;
+    case JOGO_FINALIZADO_SUCESSO:
+        Serial.println("JOGO_FINALIZADO_SUCESSO");
+        break;
+    case JOGO_FINALIZADO_FALHA:
+        Serial.println("JOGO_FINALIZADO_FALHA");
+        break;
+  };
+   delay(MEIO_SEGUNDO);
 }
 
 void iniciaJogo(){
 
+ int jogo = analogRead(0);
+  randomSeed(jogo);
+
   for(int i = 0; i < TAMANHO_SEQUENCIA; i++){
-    sequenciaLuzes[i] = sorteiaCor();
+    sequenciaLuzes[i] =  sorteiaCor();
   }
 
 }
 
+int estadoAtual(){
+  //Computar Estado Atual
+  return PRONTO_PARA_PROXIMA_RODADA;
+}
+
+void tocaLedsRodada(){
+    for(int i = 0; i <= TAMANHO_SEQUENCIA; i++){
+    piscaLed(sequenciaLuzes[i]);
+  }
+}
+
 int sorteiaCor(){
+  
   return random(LED_VERDE, LED_AZUL + 1);
 }
 
